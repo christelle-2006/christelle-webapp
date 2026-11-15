@@ -9,7 +9,7 @@ pipeline {
 
     environment {
         IMAGE          = "${params.DOCKERHUB_ID}/legeni-webapp"
-        VERSION        = "1.0.${env.BUILD_NUMBER}"
+        VERSION        = "${env.BRANCH_NAME == 'main' ? '1.0.' + env.BUILD_NUMBER : env.BRANCH_NAME.replaceAll('[^a-zA-Z0-9.-]', '-') + '-' + env.BUILD_NUMBER}"
         TEST_CONTAINER = "webapp-ci-${env.BUILD_NUMBER}"
         CI_NETWORK     = "ci-net-${env.BUILD_NUMBER}"
     }
@@ -49,7 +49,7 @@ pipeline {
         }
 
         stage('Push Docker Hub') {
-            when { expression { params.PUSH } }
+             when { branch 'main' } 
             steps {
                 withCredentials([usernamePassword(credentialsId: 'dockerhub',
                                                   usernameVariable: 'DH_USER',
